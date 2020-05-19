@@ -1,11 +1,11 @@
 bl_info = {
-    "name": "Node group tools",
+    "name": "NGviewer beta",
     "author": "Andrew Stevenson",
-    "version": (0, 1),
+    "version": (1, 1),
     "blender": (2, 80, 0),
     "location": "View3D > N-Panel",
-    "description": "easily edit node group perameters",
-    "category": "node",
+    "description": "easily edit node group perameters from the 3D view",
+    "category": "Node",
 }
 
 import bpy
@@ -20,11 +20,24 @@ from bpy.props import (StringProperty,
                        PointerProperty,
                        )
 
+#Feel free to change this but it would be great for me if you would consider buying the addon first ;)
+is_trial = True
+
+def draw_trial(col):
+    row = col.row(align=True)
+    row.operator('wm.url_open',
+                 text="",
+                 icon='FUND',
+                 emboss=False).url = "http://bit.ly/gafpanel-trial"
+    row.alert = True
+    row.label(text="Trial Version")
+
+
 def node_group_enum(self, context):
     enum_items = []
     node_groups = []
-    group_tool = bpy.context.scene.group_tool
-    nodes = bpy.data.materials[group_tool.material].node_tree.nodes
+    ng_tool = bpy.context.scene.ng_tool
+    nodes = bpy.data.materials[ng_tool.material].node_tree.nodes
 
     for node in nodes:
         if node.type == 'GROUP':
@@ -93,22 +106,30 @@ class NodeGroupSettings(bpy.types.PropertyGroup):
         default = False,
     )
 
-def def_input_boxes(group_node,):
-    categories = ["misc"]
-    print(categories.count[box])
-    for inputs in group_node.inputs:
-        #has category
-        if inputs.name.count("_") != 0:
-            box, name = inputs.name.split("_")
-            #add to categorys
+    grumpy : BoolProperty(
+        name = "grumpy",
+        description = "remove happiness from messages",
+        default = False,
+    )
+
+#possible future project
+
+# def def_input_boxes(group_node,):
+#     categories = ["misc"]
+#     print(categories.count[box])
+#     for inputs in group_node.inputs:
+#         #has category
+#         if inputs.name.count("_") != 0:
+#             box, name = inputs.name.split("_")
+#             #add to categorys
             
-            #if categories.count[box] != 0:
-                #categories.append[box]
+#             #if categories.count[box] != 0:
+#                 #categories.append[box]
     
-    print(categories)
+#     print(categories)
 
 
-class GROUP_PT_panel(Panel):
+class NG_PT_panel(Panel):
     """Creates a Panel in the Object properties window"""
     bl_space_type = "VIEW_3D"
     bl_context = "objectmode"
@@ -117,80 +138,106 @@ class GROUP_PT_panel(Panel):
     bl_category = "Tool"
 
     def draw(self, context): 
-        group_tool = bpy.context.scene.group_tool
+        ng_tool = bpy.context.scene.ng_tool
+        grumpy = ng_tool.grumpy
         layout = self.layout
-        
-        #check for materials
-        if bpy.data.materials[group_tool.material] is not None:
-            row = layout.row()
-            row.scale_y = 1.4
-            row.prop(group_tool, "material",)
+        material_slots = bpy.context.active_object.material_slots
 
-            #check for node tree
-            if bpy.data.materials[group_tool.material].node_tree is not None:
-                node_groups = []
-                nodes = bpy.data.materials[group_tool.material].node_tree.nodes
+        if grumpy:
+            face = ""
+        else:
+            face = ": )"
 
-                #check for node groups
-                for node in nodes:
-                    if node.type == 'GROUP':
-                        node_groups.append(node.name)
-            
-                if len(node_groups) is not 0:
+        if is_trial:
+            draw_trial(layout)
 
-                    node_tree = bpy.data.materials[group_tool.material].node_tree
-                    group_node = node_tree.nodes[group_tool.node_group]
-                    def_input_boxes(group_node)
+        try:
 
+            #check for material slots
+            if len(material_slots) != 0:
+
+                #check for materials
+                if bpy.data.materials[ng_tool.material] is not None and bpy.context.active_object.active_material is not None:
                     col = layout.column(align = True)
                     row = col.row(align = True)
-                    
                     row.scale_y = 1.2
                     row.scale_x = 1.13
+                    row.prop(ng_tool, "material",)
+                    row.prop(ng_tool, "show_settings", text="", icon='PREFERENCES')
 
-                    row.prop(group_tool, "node_group", icon = "NODETREE")
-                    row.prop(group_tool, "show_settings", text="", icon='PREFERENCES')
-
-                    if group_tool.show_settings:
+                    #settings panel
+                    if ng_tool.show_settings:
                         box = col.box()
-                        col = box.column(align = True)
-                        row = col.row()
-                        row.prop(group_tool, "edit_node_links")
-                        col.prop(group_tool, "use_boxes")
-                        col.prop(group_tool, "align_inputs")
+                        boxcol = box.column(align = True)
+                        row = boxcol.row()
+                        row.prop(ng_tool, "edit_node_links")
+                        boxcol.prop(ng_tool, "use_boxes")
+                        boxcol.prop(ng_tool, "align_inputs")
+                        boxcol.prop(ng_tool, "grumpy")
 
-                    #draw inputs
-                    value_inputs = [socket for socket in group_node.inputs if socket.enabled and not socket.is_linked and not socket.hide_value]
-                    if value_inputs:
-                            layout.label(text="Inputs:")
-                            #use boxes or not
-                            if group_tool.use_boxes:
-                                box = layout.box()
-                            else:
-                                box = layout
-                            #align or not
-                            col = box.column(align = group_tool.align_inputs)
-                            #draw type
-                            if group_tool.edit_node_links:
-                                for socket in range(len(value_inputs)):
-                                    col.template_node_view(node_tree, group_node, group_node.inputs[socket])
-                            else:
-                                for socket in value_inputs:
-                                    socket.draw(context, col, group_node, socket.name)
+                    col.separator()
+
+                    #check for node tree
+                    if bpy.data.materials[ng_tool.material].node_tree is not None:
+                        node_groups = []
+                        nodes = bpy.data.materials[ng_tool.material].node_tree.nodes
+
+                        #check for node groups
+                        for node in nodes:
+                            if node.type == 'GROUP':
+                                node_groups.append(node.name)
+                    
+                        if len(node_groups) is not 0:
+
+                            node_tree = bpy.data.materials[ng_tool.material].node_tree
+                            group_node = node_tree.nodes[ng_tool.node_group]
+                            #def_input_boxes(group_node)
+
+                            
+                            row = col.row(align = True)
+                            
+                            row.scale_y = 1.2
+                            row.scale_x = 1.13
+
+                            row.prop(ng_tool, "node_group", icon = "NODETREE")
+                            
 
 
+                            #draw inputs
+                            value_inputs = [socket for socket in group_node.inputs if socket.enabled and not socket.is_linked and not socket.hide_value]
+                            if value_inputs:
+                                    layout.label(text="Inputs:")
+                                    #use boxes or not
+                                    if ng_tool.use_boxes:
+                                        box = layout.box()
+                                    else:
+                                        box = layout
+                                    #align or not
+                                    col = box.column(align = ng_tool.align_inputs)
+                                    #draw type
+                                    if ng_tool.edit_node_links:
+                                        for socket in range(len(value_inputs)):
+                                            col.template_node_view(node_tree, group_node, group_node.inputs[socket])
+                                    else:
+                                        for socket in value_inputs:
+                                            socket.draw(context, col, group_node, socket.name)
+
+
+                        else:
+                            layout.label(text = "No node groups in this material " + face)            
+                    else:
+                        layout.label(text = "No active node tree " + face)
                 else:
-                    layout.label(text = "no node groups in this material")            
+                    layout.label(text = "No active material " + face)
             else:
-                layout.label(text = "no active node tree")
-        else:
-            layout.label(text = "no active material")
-         
+                layout.label(text = "No material slots " + face) 
+        except KeyError:
+            layout.label(text = "Please select a material " + face)
 
 
 classes = (
     NodeGroupSettings,
-    GROUP_PT_panel,
+    NG_PT_panel,
 )
 
 
@@ -198,7 +245,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.group_tool = bpy.props.PointerProperty(type=NodeGroupSettings)
+    bpy.types.Scene.ng_tool = bpy.props.PointerProperty(type=NodeGroupSettings)
 
 def unregister():
     for cls in classes:
