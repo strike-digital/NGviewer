@@ -21,14 +21,14 @@ from bpy.props import (StringProperty,
                        )
 
 #Feel free to change this but it would be great for me if you would consider buying the addon first ;)
-is_trial = True
+is_trial = False
 
 def draw_trial(col):
     row = col.row(align=True)
     row.operator('wm.url_open',
                  text="",
                  icon='FUND',
-                 emboss=False).url = "http://bit.ly/gafpanel-trial"
+                 emboss=False).url = "https://gumroad.com/l/qWuvv"
     row.alert = True
     row.label(text="Trial Version")
 
