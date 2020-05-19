@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Node group tools",
     "author": "Andrew Stevenson",
-    "version": (1, 0),
+    "version": (0, 1),
     "blender": (2, 80, 0),
     "location": "View3D > N-Panel",
     "description": "easily edit node group perameters",
