@@ -21,7 +21,7 @@ from bpy.props import (StringProperty,
                        )
 
 #Feel free to change this but it would be great for me if you would consider buying the addon first ;)
-is_trial = False
+is_trial = True
 
 def draw_trial(col):
     row = col.row(align=True)
