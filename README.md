@@ -7,3 +7,7 @@ I would be very thankfull if you did buy this add-on as it allows me to continue
 # Installation
 
 To install this addon:
+
+1. Download the zip file
+2. Unzip in the desired location
+3. Install the addon in the blender preferences
