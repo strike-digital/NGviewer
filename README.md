@@ -14,8 +14,7 @@ To install this addon:
 
 # Updates:
 
-20/5/20: beta 1.1
-
+    20/5/20: beta 1.1
     Improved background code
     Fixed errors when no object was selected
     Added setting to hide materials with no node groups visible
