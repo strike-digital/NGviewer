@@ -11,3 +11,12 @@ To install this addon:
 1. Download the zip file
 2. Unzip in the desired location
 3. Install the addon in the blender preferences
+
+# Updates:
+
+20/5/20: beta 1.1
+
+    Improved background code
+    Fixed errors when no object was selected
+    Added setting to hide materials with no node groups visible
+    Separated settings into Material and Nodegroup categories
