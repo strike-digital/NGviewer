@@ -19,3 +19,11 @@ To install this addon:
     Fixed errors when no object was selected
     Added setting to hide materials with no node groups visible
     Separated settings into Material and Nodegroup categories
+
+
+    21/5/20: beta 1.2
+
+    Improved background code
+    Fixed random errors
+    Added Groups!
+    Added Use groups setting
