@@ -15,7 +15,14 @@ To install this addon:
 
 # Updates:
 
+    21/5/20: beta 1.3
+    
+    Fixed bugs with alignment
+    Box groups are now not available when boxes are not enabled
+    Added info for adding box groups
+
     20/5/20: beta 1.1
+    
     Improved background code
     Fixed errors when no object was selected
     Added setting to hide materials with no node groups visible
